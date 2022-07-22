@@ -3,6 +3,21 @@
 * URL: https://bootstrapmade.com/php-email-form/
 * Author: BootstrapMade.com
 */
+import{getDatabase,ref,get,set,update,remove,child} from "https://www.gstatic.com/firebasejs/9.8.4/firebase-database.js";
+        const db=getDatabase();
+        var Name=document.getElementById("name");
+        var email=document.getElementById("email");
+        var subject=document.getElementById("subject");
+        var message=document.getElementById("message");
+        var n,e,m,s;
+        function getData()
+        {
+            n=Name.value;
+            e=email.value;
+            m=message.value;
+            s=subject.value;
+        }
+        
 (function () {
   "use strict";
 
@@ -17,16 +32,15 @@
       let action = thisForm.getAttribute('action');
       let recaptcha = thisForm.getAttribute('data-recaptcha-site-key');
       
-      if( ! action ) {
-        displayError(thisForm, 'The form action property is not set!')
-        return;
-      }
+      // if( ! action ) {
+      //   displayError(thisForm, 'The form action property is not set!')
+      //   return;
+      // }
       thisForm.querySelector('.loading').classList.add('d-block');
       thisForm.querySelector('.error-message').classList.remove('d-block');
       thisForm.querySelector('.sent-message').classList.remove('d-block');
 
       let formData = new FormData( thisForm );
-
       if ( recaptcha ) {
         if(typeof grecaptcha !== "undefined" ) {
           grecaptcha.ready(function() {
@@ -50,26 +64,33 @@
   });
 
   function php_email_form_submit(thisForm, action, formData) {
-    fetch(action, {
-      method: 'POST',
-      body: formData,
-      headers: {'X-Requested-With': 'XMLHttpRequest'}
-    })
-    .then(response => {
-      if( response.ok ) {
-        return response.text()
-      } else {
-        throw new Error(`${response.status} ${response.statusText} ${response.url}`); 
-      }
-    })
-    .then(data => {
+    // fetch(action, {
+    //   method: 'POST',
+    //   body: formData,
+    //   headers: {'X-Requested-With': 'XMLHttpRequest'}
+    // })
+    getData();
+            set(ref(db,"Message/"+e.substring(0,e.indexOf('@'))),{
+                Name:n,
+                Email:e,
+                Subject:s,
+                Message:m
+             })
+    //         .then(response => {
+    //   if( response.ok ) {
+    //     return response.text()
+    //   } else {
+    //     throw new Error(`${response.status} ${response.statusText} ${response.url}`); 
+    //   }
+    // })
+    .then(() => {
       thisForm.querySelector('.loading').classList.remove('d-block');
-      if (data.trim() == 'OK') {
+      // if (data.trim() == 'OK') {
         thisForm.querySelector('.sent-message').classList.add('d-block');
         thisForm.reset(); 
-      } else {
-        throw new Error(data ? data : 'Form submission failed and no error message returned from: ' + action); 
-      }
+      // } else {
+      //   throw new Error(data ? data : 'Form submission failed and no error message returned from: ' + action); 
+      // }
     })
     .catch((error) => {
       displayError(thisForm, error);
